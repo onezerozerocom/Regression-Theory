@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>회귀 분석 모델</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>회귀 분석 모델 <span>이론 시뮬레이션</span></h1>
+    <p class="lede"><span class="src">교과서 110–113쪽</span>독립 변수와 종속 변수, 선형 회귀, 상관관계, 오차, 결정 계수를 직접 움직여 보며 눈으로 확인합니다.<br>점과 직선을 <b>끌거나</b> 슬라이더를 <b>움직여</b> 보며 숫자가 어떻게 바뀌는지 살펴보세요.</p>
+    <ol class="flow" id="flow" aria-label="회귀 분석 모델 학습 흐름"></ol>
+  </header>
+  <div class="app">
+    <nav class="rail" aria-label="학습 단계">
+      <ol id="rail"></ol>
+      <div class="prog" id="prog"></div>
+    </nav>
+    <main id="main"></main>
+  </div>
+  <footer>REGRESSION MODEL · 데이터 과학 학습용 이론 시뮬레이션</footer>
+</div>
+<div id="tip" hidden></div>
+
+<script src="lib.js"></script>
+<script src="app.js"></script>
+<script src="core.js"></script>
+</body>
+</html>
