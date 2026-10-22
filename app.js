@@ -22,7 +22,8 @@ const r2s=v=>Math.round(v*100)/100;
 /* ---------- 데이터 ---------- */
 // 111쪽 스스로 실습: 광고비(x, 백만 원)와 매출액(y, 천만 원)
 const AD_X=[1,2,3,4,5,6,7,8,9],AD_Y=[5,3,2,3,4,6,10,12,18];
-const AD_FIT=linfit(AD_X,AD_Y),AD_BEST=mseOf(AD_X,AD_Y,AD_FIT.a,AD_FIT.b);
+const sseOf=(xs,ys,a,b)=>sum(xs.map((x,k)=>(ys[k]-(a*x+b))**2));
+const AD_FIT=linfit(AD_X,AD_Y),AD_BEST=sseOf(AD_X,AD_Y,AD_FIT.a,AD_FIT.b);   // 최소 오차제곱합
 // 4단계 오차 예시: x = 2, 4, 6, 8
 const E_X=[2,4,6,8];
 // 상관관계 시뮬레이션용 표준정규 난수 50쌍 (시드 고정)
@@ -63,7 +64,7 @@ const QUIZ={
   lin:{title:'선형 회귀 분석 이해하기',intro:'2단계 시뮬레이션의 결과를 보고 알맞은 답을 고르세요.',items:[
     {q:'광고비, 상품 구매 후기 수, 가격 세 가지로 매출액을 설명하는 회귀 분석은 무엇인가요?',o:['단순 선형 회귀 분석','다중 선형 회귀 분석','군집 분석','연관 분석'],a:2,e:'독립 변수가 한 개이면 단순 선형 회귀 분석, 두 개 이상이면 다중 선형 회귀 분석입니다.\n여기서는 독립 변수가 세 개입니다.'},
     {q:`광고비·매출액 데이터의 회귀 직선 ${eqStr(AD_FIT.a,AD_FIT.b)}로 광고비가 10(1,000만 원)일 때 매출액(천만 원)을 예측하면 약 얼마인가요?`,o:[`약 ${fx(AD_FIT.a)}`,`약 ${fx(AD_FIT.my+1.6)}`,`약 ${fx(AD10,1)}`,'약 18.0'],a:3,e:`x에 10을 넣으면 ${fx(AD_FIT.a)} × 10 ${AD_FIT.b<0?'−':'+'} ${fx(Math.abs(AD_FIT.b))} = ${fx(AD10)}입니다.\n회귀 분석 모델로 아직 관측하지 않은 값을 예측할 수 있습니다.`},
-    {q:'최소제곱법으로 구한 회귀 직선(빨간 선)은 어떤 직선인가요?',o:['모든 점을 반드시 지나는 직선','첫 번째 점과 마지막 점을 잇는 직선','기울기가 항상 1인 직선','오차를 제곱한 값의 평균이 가장 작아지는 직선'],a:4,e:'회귀 직선은 데이터를 가장 잘 대표하는 하나의 선으로, 오차 제곱의 평균(평균제곱오차)이 가장 작아지도록 정합니다.\n그래서 내 직선을 아무리 움직여도 빨간 선의 평균제곱오차보다 작아지지 않습니다.'}]},
+    {q:'최소제곱법으로 구한 회귀 직선(빨간 선)은 어떤 직선인가요?',o:['모든 점을 반드시 지나는 직선','첫 번째 점과 마지막 점을 잇는 직선','기울기가 항상 1인 직선','오차를 제곱한 값의 합이 가장 작아지는 직선'],a:4,e:'회귀 직선은 데이터를 가장 잘 대표하는 하나의 선으로, 오차 제곱의 합(오차제곱합)이 가장 작아지도록 정합니다.\n그래서 내 직선을 아무리 움직여도 빨간 선의 오차제곱합보다 작아지지 않습니다.'}]},
   cor:{title:'상관관계 분석 이해하기',intro:'3단계 시뮬레이션의 결과를 보고 알맞은 답을 고르세요.',items:[
     {q:'변수 x가 증가함에 따라 변수 y가 감소하는 관계는 무엇인가요?',o:['양의 상관관계','음의 상관관계','상관관계 없음','인과 관계'],a:2,e:'x가 증가할 때 y가 감소하면 음의 상관관계, y도 증가하면 양의 상관관계입니다.\n음의 상관관계에서는 상관관계 계수가 음수입니다.'},
     {q:'상관관계 계수가 0.15일 때 알맞은 해석은 무엇인가요?',o:['강한 양의 상관관계','약한 상관관계','강한 음의 상관관계','완벽한 상관관계'],a:2,e:'상관관계 계수가 ±0.3 미만이면 약한 상관관계를 뜻합니다.\n시뮬레이션에서 r을 0 근처로 두면 점들이 둥글게 흩어집니다.'},
@@ -115,10 +116,10 @@ VIEWS.ad=()=>{
   if(!showMy)return `<div class="sim2"><div>${s}<p class="hint">먼저 점들의 모양을 살펴보고, 어떤 직선이 데이터를 잘 대표할지 생각해 보세요.</p></div><div>
     <p class="note"><b>내 직선 보기</b>를 켜거나 <b>기울기 a</b>·<b>절편 b</b> 슬라이더를 움직이면 직선이 나타납니다.</p>
     ${gridTable(['광고비 x (백만 원)','매출액 y (천만 원)'],AD_X.map((x,k)=>[`<b>${x}</b>`,AD_Y[k]]))}</div></div>`;
-  const my=mseOf(AD_X,AD_Y,a,b);
+  const my=sseOf(AD_X,AD_Y,a,b);
   return `<div class="sim2"><div>${s}<p class="hint">흰 손잡이 두 개를 위아래로 끌면 직선이 움직입니다. 빨간 세로선이 각 점의 오차입니다.</p></div><div>
     <div class="big-eq">내 직선 &nbsp;<em>${eqStr(a,b)}</em></div>
-    <div class="stat">${fact('내 직선의 평균제곱오차',fx(my),my<=AD_BEST*1.1?'최적에 거의 도달!':'더 줄일 수 있어요',my<=AD_BEST*1.1?'':'hl')}${fact('최적 직선의 평균제곱오차',fx(AD_BEST),eqStr(AD_FIT.a,AD_FIT.b))}</div>
+    <div class="stat">${fact('내 직선의 오차제곱합',fx(my),my<=AD_BEST*1.1?'최적에 거의 도달!':'더 줄일 수 있어요',my<=AD_BEST*1.1?'':'hl')}${fact('최적 직선의 오차제곱합',fx(AD_BEST),eqStr(AD_FIT.a,AD_FIT.b))}</div>
     ${(()=>{const es=AD_X.map((x,k)=>AD_Y[k]-(a*x+b));
       return gridTable(['광고비 x (백만 원)','매출액 y (천만 원)','내 예측','오차','오차 제곱'],[...AD_X.map((x,k)=>{const e=es[k];return[`<b>${x}</b>`,AD_Y[k],fx(a*x+b),{v:fx(e),cls:Math.abs(e)>3?'c-out':''},{v:fx(e*e),cls:Math.abs(e)>3?'c-out':''}]}),
         {cls:'sum-row',cells:['<b>합계</b>','','',`<b>${fx(sum(es))}</b><small>오차의 합</small>`,`<b>${fx(sum(es.map(e=>e*e)))}</b><small>오차제곱합</small>`]}])})()}
@@ -313,12 +314,12 @@ y 평균 = ${sum(AD_Y)} ÷ 9 = ${fx(f.my,3)}
 기울기 a = ${fx(f.sxy,3)} ÷ ${fx(f.sxx,3)} = ${fx(f.a,4)}
 절편   b = ȳ − a·x̄ = ${fx(f.my,3)} − ${fx(f.a,4)} × ${fx(f.mx,3)} = ${fx(f.b,4)}
 → ${eqStr(f.a,f.b,4)}
-최소 평균제곱오차 = ${fx(AD_BEST,4)}${A().showMy?`
+최소 오차제곱합 = ${fx(AD_BEST,4)}${A().showMy?`
 
 # 내 직선 ${eqStr(a,b)}
  x   y   예측     오차    오차²
 ${AD_X.map((x,k)=>{const p=a*x+b,e=AD_Y[k]-p;return`${String(x).padStart(2)}  ${String(AD_Y[k]).padStart(2)}  ${fx(p).padStart(6)}  ${fx(e).padStart(6)}  ${fx(e*e).padStart(7)}`}).join('\n')}
-평균제곱오차 = ${fx(mseOf(AD_X,AD_Y,a,b),4)}`:`
+오차제곱합 = ${fx(sseOf(AD_X,AD_Y,a,b),4)}`:`
 
 # 내 직선: 아직 그리지 않았어요
 # 내 직선 보기를 켜거나 슬라이더를 움직여 보세요`}`+(A().pts.length>=2?(()=>{const xs=A().pts.map(p=>p[0]),ys=A().pts.map(p=>p[1]),g=linfit(xs,ys);return`\n\n# 내가 찍은 점 ${xs.length}개의 회귀 직선\n기울기 a = ${fx(g.sxy,3)} ÷ ${fx(g.sxx,3)} = ${fx(g.a,4)}\n절편   b = ${fx(g.my,3)} − ${fx(g.a,4)} × ${fx(g.mx,3)} = ${fx(g.b,4)}`})():'')}},
@@ -390,7 +391,7 @@ const GROUPS={0:'시작',1:'01 회귀 분석 모델'};
 function FLOW(){const a=A(),c=corrPts(),e=errStat(),st=r2Stat(),ok=PAIRS.filter((p,k)=>a.roles[k]===p[2]).length;
   return[
     {steps:[1,0],l:'독립 · 종속 변수',b:`${ok} / 4 구분`,s:'상관관계 vs 인과 관계',d:quizDone('var'),wait:!ok},
-    {steps:[2],l:'선형 회귀 분석',b:a.showMy?eqStr(a.a,a.b,2):'직선 그리기 전',s:a.showMy?`내 직선 MSE ${fx(mseOf(AD_X,AD_Y,a.a,a.b))}`:'광고비 · 매출액 9개',d:quizDone('lin'),wait:!a.showMy},
+    {steps:[2],l:'선형 회귀 분석',b:a.showMy?eqStr(a.a,a.b,2):'직선 그리기 전',s:a.showMy?`내 직선 오차제곱합 ${fx(sseOf(AD_X,AD_Y,a.a,a.b))}`:'광고비 · 매출액 9개',d:quizDone('lin'),wait:!a.showMy},
     {steps:[3],l:'상관관계 분석',b:`r = ${fx(pearson(c.xs,c.ys).r)}`,s:a.hidden?'숨은 원인: 기온':Math.abs(a.r)<.3?'약한 상관관계':a.r>0?'양의 상관관계':'음의 상관관계',d:quizDone('cor')},
     {steps:[4],l:'오차',b:`MSE ${fx(e.mse)}`,s:`MAE ${fx(e.mae)}`,d:quizDone('err')},
     {steps:[5],l:'결정 계수 · 평가',b:`R² = ${fx(st.r2)}`,s:`평가 MSE ${fx(mlSplit(a.seed).teMSE)}`,d:quizDone('r2')}]}
